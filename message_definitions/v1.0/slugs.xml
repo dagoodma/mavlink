@@ -3,13 +3,76 @@
     <include>common.xml</include>
 
     <enums> 
-          <enum name="MAV_CMD">
-               <!-- 1-10000 reserved for common commands -->
-               <entry value="10001" name="MAV_CMD_DO_NOTHING">
-                    <description>Does nothing.</description>
-                    <param index="1">1 to arm, 0 to disarm</param>
-               </entry>
-          </enum>
+        <enum name="MAV_CMD">
+            <!-- 1-10000 reserved for common commands -->
+            <entry value="10001" name="MAV_CMD_DO_NOTHING">
+                <description>Does nothing.</description>
+                <param index="1">1 to arm, 0 to disarm</param>
+            </entry>
+            <!--
+            <entry value="10002" name="MAV_CMD_CALIBRATE_RC">
+                <description>Initiate radio control calibration.</description>
+            </entry>
+            <entry value="10003" name="MAV_CMD_CALIBRATE_MAGNETOMETER">
+                <description>Stops recording data.</description>
+            </entry>
+            <entry value="10004" name="MAV_CMD_START_RECORDING">
+                <description>Start recording data.</description>
+            </entry>
+            <entry value="10005" name="MAV_CMD_PAUSE_RECORDING">
+                <description>Pauses recording data.</description>
+            </entry>
+            <entry value="10006" name="MAV_CMD_STOP_RECORDING">
+                <description>Stops recording data.</description>
+            </entry>
+            -->
+            <entry value="10007" name="MAV_CMD_WRITE_STORAGE">
+                <description>Write onbard parameters from RAM to permanent storage.</description>
+            </entry>
+            <entry value="10008" name="MAV_CMD_READ_STORAGE">
+                <description>Read onbard parameters from permanent storage.</description>
+            </entry>
+        </enum>
+
+        <enum name="SLUGS_MODE">
+            <description>Slugs-specific navigation modes.</description>
+            <entry value="0" name="SLUGS_MODE_NONE">
+                <description>No change to SLUGS mode.</description>
+            </entry>
+            <entry value="1" name="SLUGS_MODE_LIFTOFF">
+                <description>Vehicle is in liftoff mode.</description>
+            </entry>
+            <entry value="2" name="SLUGS_MODE_PASSTHROUGH">
+                <description>Vehicle is in passthrough mode, passing through each waypoint.</description>
+            </entry>
+            <entry value="3" name="SLUGS_MODE_WAYPOINT">
+                <description>Vehicle is in waypoint mode, completing missions.</description>
+            </entry>
+            <entry value="4" name="SLUGS_MODE_MID_LEVEL">
+                <description>Vehicle is executing a mid-level command.</description>
+            </entry>
+            <entry value="5" name="SLUGS_MODE_RETURNING">
+                <description>Vehicle is returning to home location.</description>
+            </entry>
+            <entry value="6" name="SLUGS_MODE_LANDING">
+                <description>Vehicle is landing.</description>
+            </entry>
+            <entry value="7" name="SLUGS_MODE_LOST">
+                <description>Lost connection with vehicle?</description>
+            </entry>
+            <entry value="8" name="SLUGS_MODE_SEL_PT">
+                <description>Vehicle is in select point mode, holding a given location.</description>
+            </entry>
+            <entry value="9" name="SLUGS_MODE_ISR">
+                <description>Vehicle is in ISR mode, performing reconaissance.</description>
+            </entry>
+            <entry value="10" name="SLUGS_MODE_LINE_PATROL">
+                <description>Vehicle is patrolling along lines between waypoints.</description>
+            </entry>
+            <entry value="11" name="SLUGS_MODE_GROUNDED">
+                <description>Vehicle is grounded.</description>
+            </entry>
+        </enum>
     </enums>
     <!--
   <enum name="SLUGS_ACTION" > 
