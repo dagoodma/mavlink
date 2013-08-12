@@ -9,6 +9,7 @@
                 <description>Does nothing.</description>
                 <param index="1">1 to arm, 0 to disarm</param>
             </entry>
+            <!-- Unused Commands --> 
             <!--
             <entry value="10002" name="MAV_CMD_CALIBRATE_RC">
                 <description>Initiate radio control calibration.</description>
@@ -26,12 +27,26 @@
                 <description>Stops recording data.</description>
             </entry>
             -->
+            <!-- Old MAVlink Common Actions -->
             <entry value="10007" name="MAV_CMD_WRITE_STORAGE">
                 <description>Write onbard parameters from RAM to permanent storage.</description>
             </entry>
             <entry value="10008" name="MAV_CMD_READ_STORAGE">
                 <description>Read onbard parameters from permanent storage.</description>
             </entry>
+            <entry value="10011" name="MAV_CMD_RETURN_TO_BASE">
+                <description>Return vehicle to base.</description>
+                <param index="1">0: return to base, 1: track mobile base</param>
+            </entry>
+            <entry value="10012" name="MAV_CMD_STOP_RETURN_TO_BASE">
+                <description>Stops the vehicle from returning to base and resumes flight. </description>
+            </entry>
+            <entry value="10013" name="MAV_CMD_TURN_LIGHT">
+                <description>Turns the vehicle's visible or infrared lights on or off.</description>
+                <param index="1">0: visible lights, 1: infrared lights</param>
+                <param index="2">0: turn on, 1: turn off</param>
+            </entry>
+            <!-- From SLUGS_ACTION Enum -->
         </enum>
 
         <enum name="SLUGS_MODE">
@@ -43,56 +58,38 @@
                 <description>Vehicle is in liftoff mode.</description>
             </entry>
             <entry value="2" name="SLUGS_MODE_PASSTHROUGH">
-                <description>Vehicle is in passthrough mode, passing through each waypoint.</description>
+                <description>Vehicle is in passthrough mode, being controlled by a pilot.</description>
             </entry>
             <entry value="3" name="SLUGS_MODE_WAYPOINT">
-                <description>Vehicle is in waypoint mode, completing missions.</description>
+                <description>Vehicle is in waypoint mode, using L2+ control.</description>
             </entry>
             <entry value="4" name="SLUGS_MODE_MID_LEVEL">
-                <description>Vehicle is executing a mid-level command.</description>
+                <description>Vehicle is executing mid-level commands.</description>
             </entry>
             <entry value="5" name="SLUGS_MODE_RETURNING">
-                <description>Vehicle is returning to home location.</description>
+                <description>Vehicle is returning to the home location.</description>
             </entry>
             <entry value="6" name="SLUGS_MODE_LANDING">
                 <description>Vehicle is landing.</description>
             </entry>
             <entry value="7" name="SLUGS_MODE_LOST">
-                <description>Lost connection with vehicle?</description>
+                <description>Lost connection with vehicle.</description>
             </entry>
-            <entry value="8" name="SLUGS_MODE_SEL_PT">
-                <description>Vehicle is in select point mode, holding a given location.</description>
+            <entry value="8" name="SLUGS_MODE_SELECTIVE_PASSTHROUGH">
+                <description>Vehicle is in selective passthrough mode, where select surfaces are being manually controlled.</description>
             </entry>
             <entry value="9" name="SLUGS_MODE_ISR">
-                <description>Vehicle is in ISR mode, performing reconaissance.</description>
+                <description>Vehicle is in ISR mode, performing reconaissance at a point specified by ISR_LOCATION message.</description>
             </entry>
             <entry value="10" name="SLUGS_MODE_LINE_PATROL">
                 <description>Vehicle is patrolling along lines between waypoints.</description>
             </entry>
             <entry value="11" name="SLUGS_MODE_GROUNDED">
-                <description>Vehicle is grounded.</description>
+                <description>Vehicle is grounded or an error has occurred.</description>
             </entry>
         </enum>
     </enums>
-    <!--
-  <enum name="SLUGS_ACTION" > 
-    <description> Slugs Actions </description> 
-    <entry name = "SLUGS_ACTION_NONE"> 
-    <entry name = "SLUGS_ACTION_SUCCESS"> 
-    <entry name = "SLUGS_ACTION_FAIL"> 
-    <entry name = "SLUGS_ACTION_EEPROM"> 
-    <entry name = "SLUGS_ACTION_MODE_CHANGE"> 
-    <entry name = "SLUGS_ACTION_MODE_REPORT"> 
-    <entry name = "SLUGS_ACTION_PT_CHANGE"> 
-    <entry name = "SLUGS_ACTION_PT_REPORT"> 
-    <entry name = "SLUGS_ACTION_PID_CHANGE"> 
-    <entry name = "SLUGS_ACTION_PID_REPORT"> 
-    <entry name = "SLUGS_ACTION_WP_CHANGE"> 
-    <entry name = "SLUGS_ACTION_WP_REPORT"> 
-    <entry name = "SLUGS_ACTION_MLC_CHANGE"> 
-    <entry name = "SLUGS_ACTION_MLC_REPORT"> 
-  </enum> 
-
+   <!-- 
   <enum name="WP_PROTOCOL_STATE" > 
     <description> Waypoint Protocol States </description> 
     <entry name = "WP_PROT_IDLE"> 
@@ -199,13 +196,14 @@
          <field name="bitfieldPt" type="uint16_t">Bitfield containing the PT configuration</field>
       </message>  
       
-      
+     <!-- 
       <message name="SLUGS_ACTION" id="183">
          <description> Action messages focused on the SLUGS AP. </description>
          <field name="target" type="uint8_t">The system reporting the action</field>
          <field name="actionId" type="uint8_t">Action ID. See apDefinitions.h in the SLUGS /clib directory for the ID names</field>
          <field name="actionVal" type="uint16_t">Value associated with the action</field>
       </message>
+      -->
 
       <message name="SLUGS_CAMERA_ORDER" id="184">
          <description>Orders generated to the SLUGS camera mount. </description>
@@ -224,12 +222,15 @@
          <field name="bControl" type="float">Order to origin</field>
       </message>
 
+      <!-- Moved into MAV_CMD_RETURN_TO_BASE -->
+      <!--
       <message name="SLUGS_RTB" id="187">
          <description>Orders SLUGS to RTB. It also decides to either track a mobile or RTB </description>
          <field name="target" type="uint8_t">The system ordered to RTB</field>
          <field name="rtb" type="uint8_t">Order SLUGS to: 0: Stop RTB and resume flight; 1: RTB</field>
          <field name="track_mobile" type="uint8_t">Order SLUGS to: 0: RTB to GS Location; 1: Track mobile </field>
       </message>
+      -->
 
        <message name="SLUGS_MOBILE_LOCATION" id="186">
         <description>Transmits the last known position of the mobile GS to the UAV. Very relevant when Track Mobile is enabled</description>
@@ -256,12 +257,15 @@
       <field name="option3" type="uint8_t">Option 3</field>
     </message>
 
+    <!-- Removed to MAV_CMD_TURN_LIGHT -->
+    <!-- 
     <message name="TURN_LIGHT" id="190">
         <description>Transmits the order to turn on lights</description>
         <field name="target" type="uint8_t">The system ordered to turn on lights</field>
         <field name="type" type="uint8_t">Type lights 0: Visible; 1: Infrared</field>
         <field name="turn" type="uint8_t">Order turn on lights 1: Turn on; 0: Turn off</field>
      </message>
+    -->
 
     <message name="VOLT_SENSOR" id="191">
         <description>Transmits the readings from the voltage and current sensors</description>
