@@ -28,12 +28,6 @@
             </entry>
             -->
             <!-- Old MAVlink Common Actions -->
-            <entry value="10007" name="MAV_CMD_WRITE_STORAGE">
-                <description>Write onbard parameters from RAM to permanent storage.</description>
-            </entry>
-            <entry value="10008" name="MAV_CMD_READ_STORAGE">
-                <description>Read onbard parameters from permanent storage.</description>
-            </entry>
             <entry value="10011" name="MAV_CMD_RETURN_TO_BASE">
                 <description>Return vehicle to base.</description>
                 <param index="1">0: return to base, 1: track mobile base</param>
@@ -45,6 +39,9 @@
                 <description>Turns the vehicle's visible or infrared lights on or off.</description>
                 <param index="1">0: visible lights, 1: infrared lights</param>
                 <param index="2">0: turn on, 1: turn off</param>
+            </entry>
+            <entry value="10014" name="MAV_CMD_GET_MID_LEVEL_COMMANDS">
+                <description>Requests vehicle to send current mid-level commands to ground station.</description>
             </entry>
             <!-- From SLUGS_ACTION Enum -->
         </enum>
@@ -61,7 +58,7 @@
                 <description>Vehicle is in passthrough mode, being controlled by a pilot.</description>
             </entry>
             <entry value="3" name="SLUGS_MODE_WAYPOINT">
-                <description>Vehicle is in waypoint mode, using L2+ control.</description>
+                <description>Vehicle is in waypoint mode, navigating to waypoints.</description>
             </entry>
             <entry value="4" name="SLUGS_MODE_MID_LEVEL">
                 <description>Vehicle is executing mid-level commands.</description>
@@ -76,7 +73,7 @@
                 <description>Lost connection with vehicle.</description>
             </entry>
             <entry value="8" name="SLUGS_MODE_SELECTIVE_PASSTHROUGH">
-                <description>Vehicle is in selective passthrough mode, where select surfaces are being manually controlled.</description>
+                <description>Vehicle is in selective passthrough mode, where selected surfaces are being manually controlled.</description>
             </entry>
             <entry value="9" name="SLUGS_MODE_ISR">
                 <description>Vehicle is in ISR mode, performing reconaissance at a point specified by ISR_LOCATION message.</description>
@@ -86,6 +83,35 @@
             </entry>
             <entry value="11" name="SLUGS_MODE_GROUNDED">
                 <description>Vehicle is grounded or an error has occurred.</description>
+            </entry>
+        </enum>
+
+        <enum name="CONTROL_SURFACE_FLAG">
+            <description>These flags encode the control surfaces for selective passthrough mode. If a bit is set then the pilot console
+            has control of the surface, and if not then the autopilot has control of the surface.</description>
+            <entry value="128" name="CONTROL_SURFACE_FLAG_THROTTLE">
+                 <description>0b10000000 Throttle control passes through to pilot console.</description>
+            </entry>
+            <entry value="64" name="CONTROL_SURFACE_FLAG_LEFT_AILERON">
+                 <description>0b01000000 Left aileron control passes through to pilot console.</description>
+            </entry>
+            <entry value="32" name="CONTROL_SURFACE_FLAG_RIGHT_AILERON">
+                  <description>0b00100000 Right aileron control passes through to pilot console.</description>
+            </entry>
+            <entry value="16" name="CONTROL_SURFACE_FLAG_RUDDER">
+                 <description>0b00010000 Rudder control passes through to pilot console.</description>
+            </entry>
+            <entry value="8" name="CONTROL_SURFACE_FLAG_LEFT_ELEVATOR">
+                 <description>0b00001000 Left elevator control passes through to pilot console.</description>
+            </entry>
+            <entry value="4" name="CONTROL_SURFACE_FLAG_RIGHT_ELEVATOR">
+                 <description>0b00000100 Right elevator control passes through to pilot console.</description>
+            </entry>
+            <entry value="2" name="CONTROL_SURFACE_FLAG_LEFT_FLAP">
+                 <description>0b00000010 Left flap control passes through to pilot console.</description>
+            </entry>
+            <entry value="1" name="CONTROL_SURFACE_FLAG_RIGHT_FLAP">
+                 <description>0b00000001 Right flap control passes through to pilot console.</description>
             </entry>
         </enum>
     </enums>
@@ -179,31 +205,10 @@
       </message>    
 
       <message name="CTRL_SRFC_PT" id="181">
-        <description>This message configures the Selective Passthrough mode. it allows to select which control surfaces the Pilot can control from his console. It is implemented as a bitfield as follows: 
-         Position          Bit        Code
-         =================================
-         15-8             Reserved  
-         7                 dt_pass    128
-         6                 dla_pass   64
-         5                 dra_pass   32
-         4                 dr_pass    16
-         3                 dle_pass   8
-         2                 dre_pass   4
-         1                 dlf_pass   2
-         0                 drf_pass   1
-        Where Bit 15 is the MSb. 0 = AP has control of the surface; 1 = Pilot Console has control of the surface.</description>
+        <description>This message sets the control surfaces for selective passthrough mode.</description>
          <field name="target" type="uint8_t">The system setting the commands</field>
-         <field name="bitfieldPt" type="uint16_t">Bitfield containing the PT configuration</field>
+         <field name="bitfieldPt" type="uint16_t">Bitfield containing the passthrough configuration, see CONTROL_SURFACE_FLAG ENUM.</field>
       </message>  
-      
-     <!-- 
-      <message name="SLUGS_ACTION" id="183">
-         <description> Action messages focused on the SLUGS AP. </description>
-         <field name="target" type="uint8_t">The system reporting the action</field>
-         <field name="actionId" type="uint8_t">Action ID. See apDefinitions.h in the SLUGS /clib directory for the ID names</field>
-         <field name="actionVal" type="uint16_t">Value associated with the action</field>
-      </message>
-      -->
 
       <message name="SLUGS_CAMERA_ORDER" id="184">
          <description>Orders generated to the SLUGS camera mount. </description>
