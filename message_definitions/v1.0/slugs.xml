@@ -158,7 +158,7 @@
 
       <message name="SLUGS_NAVIGATION" id="176">
          <description>Data used in the navigation algorithm.</description>
-         <field name="u_m" type="float">Measured Airspeed prior to the Nav Filter</field>
+         <field name="u_m" type="float">Measured Airspeed prior to the nav filter in m/s</field>
          <field name="phi_c" type="float">Commanded Roll</field>
          <field name="theta_c" type="float">Commanded Pitch</field>
          <field name="psiDot_c" type="float">Commanded Turn rate</field>
@@ -167,7 +167,7 @@
          <field name="dist2Go" type="float">Remaining distance to Run on this leg of Navigation</field>
          <field name="fromWP" type="uint8_t">Origin WP</field>
          <field name="toWP" type="uint8_t">Destination WP</field>
-         <field name="h_c" type="uint16_t">Orderly Height</field>
+         <field name="h_c" type="uint16_t">Commanded altitude in 0.1 m</field>
       </message>
       
       <message name="DATA_LOG" id="177">
@@ -199,9 +199,9 @@
       <message name="MID_LVL_CMDS" id="180">
          <description>Mid Level commands sent from the GS to the autopilot. These are only sent when being operated in mid-level commands mode from the ground.</description>
          <field name="target" type="uint8_t">The system setting the commands</field>
-         <field name="hCommand" type="float">Commanded Altitude</field>
-         <field name="uCommand" type="float">Commanded Airspeed </field>
-         <field name="rCommand" type="float">Commanded Turnrate </field>
+         <field name="hCommand" type="float">Commanded Altitude in meters</field>
+         <field name="uCommand" type="float">Commanded Airspeed in m/s</field>
+         <field name="rCommand" type="float">Commanded Turnrate in rad/s</field>
       </message>    
 
       <message name="CTRL_SRFC_PT" id="181">
