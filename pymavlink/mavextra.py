@@ -34,6 +34,20 @@ def altitude(SCALED_PRESSURE, ground_pressure=None, ground_temp=None):
     temp = ground_temp + 273.15
     return log(scaling) * temp * 29271.267 * 0.001
 
+def altitude2(SCALED_PRESSURE, ground_pressure=None, ground_temp=None):
+    '''calculate barometric altitude'''
+    from pymavlink import mavutil
+    self = mavutil.mavfile_global
+    if ground_pressure is None:
+        if self.param('GND_ABS_PRESS', None) is None:
+            return 0
+        ground_pressure = self.param('GND_ABS_PRESS', 1)
+    if ground_temp is None:
+        ground_temp = self.param('GND_TEMP', 0)
+    scaling = SCALED_PRESSURE.press_abs*100.0 / ground_pressure
+    temp = ground_temp + 273.15
+    return 153.8462 * temp * (1.0 - exp(0.190259 * log(scaling)))
+
 def mag_heading(RAW_IMU, ATTITUDE, declination=None, SENSOR_OFFSETS=None, ofs=None):
     '''calculate heading from raw magnetometer'''
     if declination is None:
@@ -49,8 +63,9 @@ def mag_heading(RAW_IMU, ATTITUDE, declination=None, SENSOR_OFFSETS=None, ofs=No
 
     # go via a DCM matrix to match the APM calculation
     dcm_matrix = rotation(ATTITUDE)
+    cos_pitch_sq = 1.0-(dcm_matrix.c.x*dcm_matrix.c.x)
     headY = mag_y * dcm_matrix.c.z - mag_z * dcm_matrix.c.y
-    headX = mag_x + dcm_matrix.c.x * (headY - mag_x * dcm_matrix.c.x)
+    headX = mag_x * cos_pitch_sq - dcm_matrix.c.x * (mag_y * dcm_matrix.c.y + mag_z * dcm_matrix.c.z)
 
     heading = degrees(atan2(-headY,headX)) + declination
     if heading < 0:
@@ -479,17 +494,27 @@ def wingloading(bank):
     '''return expected wing loading factor for a bank angle in radians'''
     return 1.0/cos(bank)
 
-def airspeed(VFR_HUD, ratio=None):
+def airspeed(VFR_HUD, ratio=None, used_ratio=None):
     '''recompute airspeed with a different ARSPD_RATIO'''
     import mavutil
     mav = mavutil.mavfile_global
     if ratio is None:
         ratio = 1.9936 # APM default
-    if 'ARSPD_RATIO' in mav.params:
-        used_ratio = mav.params['ARSPD_RATIO']
-    else:
-        used_ratio = ratio
+    if used_ratio is None:
+        if 'ARSPD_RATIO' in mav.params:
+            used_ratio = mav.params['ARSPD_RATIO']
+        else:
+            print("no ARSPD_RATIO in mav.params")
+            used_ratio = ratio
     airspeed_pressure = (VFR_HUD.airspeed**2) / used_ratio
+    airspeed = sqrt(airspeed_pressure * ratio)
+    return airspeed
+
+def airspeed_ratio(VFR_HUD):
+    '''recompute airspeed with a different ARSPD_RATIO'''
+    import mavutil
+    mav = mavutil.mavfile_global
+    airspeed_pressure = (VFR_HUD.airspeed**2) / ratio
     airspeed = sqrt(airspeed_pressure * ratio)
     return airspeed
 
@@ -548,7 +573,12 @@ def yaw_rate(ATTITUDE):
     return psiDot
 
 
-def gps_velocity(GPS_RAW_INT):
+def gps_velocity(GLOBAL_POSITION_INT):
+    '''return GPS velocity vector'''
+    return Vector3(GLOBAL_POSITION_INT.vx, GLOBAL_POSITION_INT.vy, GLOBAL_POSITION_INT.vz) * 0.01
+
+
+def gps_velocity_old(GPS_RAW_INT):
     '''return GPS velocity vector'''
     return Vector3(GPS_RAW_INT.vel*0.01*cos(radians(GPS_RAW_INT.cog*0.01)),
                    GPS_RAW_INT.vel*0.01*sin(radians(GPS_RAW_INT.cog*0.01)), 0)
@@ -646,6 +676,14 @@ def wrap_180(angle):
     if angle > 180:
         angle -= 360.0
     if angle < -180:
+        angle += 360.0
+    return angle
+
+    
+def wrap_360(angle):
+    if angle > 360:
+        angle -= 360.0
+    if angle < 0:
         angle += 360.0
     return angle
 
