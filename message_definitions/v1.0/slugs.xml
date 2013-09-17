@@ -43,6 +43,10 @@
             <entry value="10014" name="MAV_CMD_GET_MID_LEVEL_COMMANDS">
                 <description>Requests vehicle to send current mid-level commands to ground station.</description>
             </entry>
+            <entry value="10015" name="MAV_CMD_MIDLEVEL_STORAGE">
+                <description>Requests storage of mid-level commands.</description>
+                <param index="1">Mid-level command storage: 0: read from flash/EEPROM, 1: write to flash/EEPROM</param>
+            </entry>
             <!-- From SLUGS_ACTION Enum -->
         </enum>
 
