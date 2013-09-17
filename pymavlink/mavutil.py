@@ -56,10 +56,10 @@ def set_dialect(dialect):
     from generator import mavparse
     if mavlink is None or mavlink.WIRE_PROTOCOL_VERSION == "1.0" or not 'MAVLINK09' in os.environ:
         wire_protocol = mavparse.PROTOCOL_1_0
-        modname = "pymavlink.dialects.v10." + dialect
+        modname = "dialects.v10." + dialect
     else:
         wire_protocol = mavparse.PROTOCOL_0_9
-        modname = "pymavlink.dialects.v09." + dialect
+        modname = "dialects.v09." + dialect
 
     try:
         mod = __import__(modname)
@@ -73,6 +73,11 @@ def set_dialect(dialect):
         mod = getattr(mod, comp)
     current_dialect = dialect
     mavlink = mod
+    print("Loading modname: " + modname)
+
+def get_dialect_module():
+    return mavlink
+
 
 # allow for a MAVLINK_DIALECT environment variable
 if not 'MAVLINK_DIALECT' in os.environ:
