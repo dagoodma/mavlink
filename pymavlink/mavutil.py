@@ -73,7 +73,6 @@ def set_dialect(dialect):
         mod = getattr(mod, comp)
     current_dialect = dialect
     mavlink = mod
-    print("Loading modname: " + modname)
 
 def get_dialect_module():
     return mavlink
