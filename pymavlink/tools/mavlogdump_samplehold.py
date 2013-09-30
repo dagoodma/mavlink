@@ -28,6 +28,7 @@ parser.add_option("--format", dest="format", default=None, help="Change the outp
 parser.add_option("--csv_sep", dest="csv_sep", default=",", help="Select the delimiter between columns for the ouput CSV file. Use 'tab' to specify tabs. Only applies when --format=csv")
 parser.add_option("--types",  default=None, help="types of messages (comma separated)")
 parser.add_option("--dialect",  default="ardupilotmega", help="MAVLink dialect")
+parser.add_option("--no-description",dest="description_section", action='store_false', default=True, help="disables data desciption section")
 (opts, args) = parser.parse_args()
 
 import inspect
@@ -87,6 +88,19 @@ for field in fields:
     window[field] = 0
 
 fields_header = fields_header.rstrip(opts.csv_sep)
+
+# Show data description section
+if opts.description_section:
+    print("Description data:")
+    i = 1
+    for field in fields:
+        field = field.replace('.', '_')
+        print(field.upper() + " {" + str(i) + "}")
+        i += 1
+
+    print("End description data" + os.linesep ) 
+
+# Show column names in csv format)
 print(fields_header.upper())
 
 if opts.debug:

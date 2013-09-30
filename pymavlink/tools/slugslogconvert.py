@@ -101,7 +101,7 @@ class Application(Frame):
     """
     def browseOutputFile(self):
         mavlinkFolder = os.path.dirname(os.path.realpath(__file__))
-        output_file = tkinter.filedialog.askopenfilename(parent=self,title='Please choose an output .csv file name')
+        output_file = tkinter.filedialog.asksaveasfilename(parent=self,title='Please choose an output .csv file name')
         if DEBUG:
             print("Output: " + output_file)
         if output_file != None:
