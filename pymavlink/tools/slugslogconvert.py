@@ -127,7 +127,8 @@ class Application(Frame):
 
         # Run log conversion script
         args = conversion_args + " " + self.binary_log_value.get() + " > " + self.out_value.get()
-        cmd = "python " + conversion_script + " " + args
+        conversion_script_path = os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])), conversion_script)
+        cmd = "python " + conversion_script_path + " " + args
         result = 0
 
         if DEBUG:
