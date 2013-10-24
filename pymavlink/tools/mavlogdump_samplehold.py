@@ -50,12 +50,12 @@ output = None
 if opts.output:
     output = mavutil.mavlogfile(opts.output, write=True)
 
-types = opts.types
-if types is not None:
-    types = types.split(',')
+desired_types = opts.types
+if desired_types is not None:
+    desired_types = desired_types.split(',')
 
 if opts.debug:
-    print("Building " + opts.format + " file with types: " + str(types))
+    print("Building " + opts.format + " file with types: " + str(desired_types))
 
 opts.csv_sep = opts.csv_sep.replace("tab","\t")
 
@@ -66,7 +66,7 @@ offsets = {}
 if opts.format == 'csv':
     try:
         currentOffset = 1 # Store how many fields in we are for each message.
-        for type in types:
+        for type in desired_types:
             try:
                 typeClass = "MAVLink_{0}_message".format(type.lower())
                 fields += [type + '.' + x for x in inspect.getargspec(getattr(get_dialect_module(), typeClass).__init__).args[1:]]
@@ -103,30 +103,34 @@ if opts.description_section:
 # Show column names in csv format)
 print(fields_header.upper())
 
+# Initialize timestamp field for alignment
+current_timestamp = 0
+use_timestamp = False
+
 if opts.debug:
     print("Initialized sample window fields: " + str(window))
 
 while True:
-    m = mlog.recv_match(condition=opts.condition, blocking=opts.follow)
+    m = mlog.recv_match(condition=opts.condition, blocking=opts.follow, type=desired_types)
     if m is None:
         break
 
-    if types is not None and m.get_type() not in types and m.get_type() != 'BAD_DATA':
+    if desired_types is not None and m.get_type() not in desired_types and m.get_type() != 'BAD_DATA':
         continue
     last_timestamp = 0
     
     if m.get_type() == 'BAD_DATA' and m.reason == "Bad prefix":
         continue
+
+    # Save fields into window
+    data = m.to_dict()
+    type = m.get_type()
     
-    if output:
-        timestamp = getattr(m, '_timestamp', None)
-        if not timestamp:
-            timestamp = last_timestamp
-        last_timestamp = timestamp
-        output.write(struct.pack('>Q', timestamp*1.0e6))
-        output.write(m.get_msgbuf())
-    if opts.quiet:
-        continue
+    # Iterate over all fields of data and set the window
+    for field,value in data.items():
+        key = type + "." + field
+        if (key in window):
+            window[key] = value
 
     # If JSON was ordered, serve it up. Split it nicely into metadata and data.
     if opts.format == 'json':
@@ -135,30 +139,19 @@ while True:
         outMsg = {"meta": {"msgId": m.get_msgId(), "type": m.get_type(), "timestamp": m._timestamp}, "data": json.dumps(data)}
         print(outMsg)
     elif opts.format == 'csv':
-        data = m.to_dict()
-        type = m.get_type()
+        if not use_timestamp or current_timestamp != window["ATTITUDE.time_boot_ms"]:
+            current_timestamp = window["ATTITUDE.time_boot_ms"]
         
-        # Iterate over all fields of data and set the window
-        for field,value in data.items():
-            key = type + "." + field
-            if (key in window):
-                window[key] = value
-
-        # Build the line
-        out = []
-        values = window.values()
-        for v in values:
-            out.append(str(v))
-        
-        out = opts.csv_sep.join(out)
-        out = out.rstrip(opts.csv_sep)
-        if opts.debug:
-            print(out + " ----- " + type)
-        else:
-            print(out)
-    else:
-        print("%s.%02u: %s" % (
-            time.strftime("%Y-%m-%d %H:%M:%S",
-                          time.localtime(m._timestamp)),
-                          int(m._timestamp*100.0)%100, m))
+            # Build the line
+            out = []
+            values = window.values()
+            for v in values:
+                out.append(str(v))
+            
+            out = opts.csv_sep.join(out)
+            out = out.rstrip(opts.csv_sep)
+            if opts.debug:
+                print(out + " ----- " + type)
+            else:
+                print(out)
         
