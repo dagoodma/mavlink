@@ -105,7 +105,7 @@ print(fields_header.upper())
 
 # Initialize timestamp field for alignment
 current_timestamp = 0
-use_timestamp = False
+use_timestamp = True
 
 if opts.debug:
     print("Initialized sample window fields: " + str(window))
